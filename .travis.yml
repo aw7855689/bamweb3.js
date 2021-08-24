@@ -1,0 +1,35 @@
+language: node_js
+
+node_js:
+  - "10"
+
+env:
+  - CXX=g++-4.8 BTCBAM_RPC_ADDRESS='http://bam:bam@localhost:13889' SENDER_ADDRESS='BdnMQNtm54UakviFvzRvT7kk2koL2uX86p' WALLET_PASSPHRASE='password'
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
+
+cache:
+  directories:
+    - "node_modules"
+
+before_install:
+  - wget https://github.com/Bitcoin-Bam/btcbam-core/releases/download/0.1.0.0/btcbam-core-0.1.0.0-x86_64-linux-gnu.tar.gz
+
+install:
+  - tar -xvzf btcbam-0.16.1-x86_64-linux-gnu.tar.gz
+  - npm install
+  - mkdir test/data/.btcbam
+
+script:
+  - ./btcbam-0.16.1/bin/btcbamd -testnet -logevents -rpcuser=bam -rpcpassword=bam -datadir=./test/data/.btcbam & 
+  - sleep 10
+  - npm run test:cleanenv
+
+after_failure:
+  - cat /home/travis/build/btcbam/qweb3.js/test/data/.btcbam/testnet3/debug.log
